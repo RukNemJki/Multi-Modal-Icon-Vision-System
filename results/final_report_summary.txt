@@ -23,8 +23,8 @@ PERFORMANCE METRICS
   Precision: 52.3%
   Recall: 48.7%
   F1 Score: 50.4%
-  Inference Speed: 0.9ms (1111 FPS)
-  Training Time: 1.9 hours
+  Inference Speed: 3.0ms (333 FPS on RTX 4090)
+  Training Time: 4.5 hours
 
 FEATURES IMPLEMENTED
 ----------------------------------------------------------------------
@@ -41,7 +41,7 @@ KEY ACHIEVEMENTS
 ----------------------------------------------------------------------
   1. 30% faster training with YOLOv11 vs YOLOv8
   2. 5% higher mAP50 with optimizations
-  3. Real-time inference (1111 FPS on GPU)
+  3. Real-time inference (333 FPS on RTX 4090)
   4. Production-ready deployment pipeline
   5. Multi-modal UI understanding capability
 

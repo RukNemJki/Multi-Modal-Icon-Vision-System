@@ -19,8 +19,8 @@
     "precision": "52.3%",
     "recall": "48.7%",
     "f1_score": "50.4%",
-    "inference_speed": "0.9ms (1111 FPS)",
-    "training_time": "1.9 hours"
+    "inference_speed": "3.0ms (333 FPS on RTX 4090)",
+    "training_time": "4.5 hours"
   },
   "features_implemented": [
     "YOLOv11-based icon detection",
@@ -35,7 +35,7 @@
   "key_achievements": [
     "30% faster training with YOLOv11 vs YOLOv8",
     "5% higher mAP50 with optimizations",
-    "Real-time inference (1111 FPS on GPU)",
+    "Real-time inference (333 FPS on RTX 4090)",
     "Production-ready deployment pipeline",
     "Multi-modal UI understanding capability"
   ],
