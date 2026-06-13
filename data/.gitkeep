@@ -1,0 +1,3 @@
+# This file ensures the data/ directory is tracked by git.
+# Download the Rico dataset and place it in data/raw/
+# See README.md for dataset preparation instructions.

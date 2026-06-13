@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Modal Icon Vision System</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <h1>🔍 Multi-Modal Icon Vision System</h1>
+                <p class="subtitle">AI-Powered Mobile UI Icon Detection</p>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Upload Section -->
+            <section class="upload-section">
+                <div class="upload-card">
+                    <h2>Upload Screenshot</h2>
+                    <div class="upload-area" id="uploadArea">
+                        <div class="upload-icon">📱</div>
+                        <p class="upload-text">Drag and drop your screenshot here</p>
+                        <p class="upload-subtext">or</p>
+                        <label for="fileInput" class="upload-button">Choose File</label>
+                        <input type="file" id="fileInput" accept="image/png,image/jpeg,image/jpg" style="display: none;">
+                        <p class="upload-info">Supported formats: PNG, JPG, JPEG (Max 10MB)</p>
+                    </div>
+                    
+                    <!-- Settings -->
+                    <div class="settings-section">
+                        <h3>Detection Settings</h3>
+                        <div class="setting-group">
+                            <label for="confidenceSlider">
+                                Confidence Threshold: <span id="confidenceValue">0.25</span>
+                            </label>
+                            <input type="range" id="confidenceSlider" min="0.1" max="0.9" step="0.05" value="0.25">
+                        </div>
+                        <div class="setting-group">
+                            <label for="iouSlider">
+                                IOU Threshold: <span id="iouValue">0.45</span>
+                            </label>
+                            <input type="range" id="iouSlider" min="0.1" max="0.9" step="0.05" value="0.45">
+                        </div>
+                    </div>
+
+                    <button id="detectButton" class="detect-button" disabled>
+                        Detect Icons
+                    </button>
+                </div>
+            </section>
+
+            <!-- Results Section -->
+            <section class="results-section" id="resultsSection" style="display: none;">
+                <div class="results-card">
+                    <div class="results-header">
+                        <h2>Detection Results</h2>
+                        <button id="downloadButton" class="download-button">
+                            💾 Download Results
+                        </button>
+                    </div>
+
+                    <!-- Image Display -->
+                    <div class="image-container">
+                        <canvas id="resultCanvas"></canvas>
+                        <div id="loadingSpinner" class="spinner" style="display: none;">
+                            <div class="spinner-circle"></div>
+                            <p>Detecting icons...</p>
+                        </div>
+                    </div>
+
+                    <!-- Statistics -->
+                    <div class="stats-container">
+                        <div class="stat-card">
+                            <div class="stat-value" id="totalDetections">0</div>
+                            <div class="stat-label">Total Icons Detected</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="avgConfidence">0%</div>
+                            <div class="stat-label">Average Confidence</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="processingTime">0ms</div>
+                            <div class="stat-label">Processing Time</div>
+                        </div>
+                    </div>
+
+                    <!-- Detections List -->
+                    <div class="detections-list">
+                        <h3>Detected Icons</h3>
+                        <div id="detectionsList" class="detections-grid">
+                            <!-- Dynamically populated -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>Developed by: Harshit Sharma (102216014), Sushant Thakur (102216028), Kamal (102397015)</p>
+            <p>Under the supervision of Dr. Surjit Singh</p>
+            <p>Thapar Institute of Engineering and Technology, Patiala • 2025</p>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

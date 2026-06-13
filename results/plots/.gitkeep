@@ -1,0 +1,2 @@
+# This file ensures the results/plots/ directory is tracked by git.
+# Generated plots will be saved here by evaluation scripts.

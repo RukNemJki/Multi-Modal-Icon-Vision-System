@@ -1,0 +1,66 @@
+version: '3.8'
+
+services:
+  # Icon Detection Web Application
+  icon-detection:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: icon-detection-app
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./data:/app/data
+      - ./models:/app/models
+      - ./output:/app/output
+      - ./uploads:/app/uploads
+    environment:
+      - FLASK_ENV=production
+      - PYTHONUNBUFFERED=1
+      - YOLO_MODEL=models/best.pt
+      - DEVICE=cuda  # Change to 'cpu' if no GPU
+    restart: unless-stopped
+    networks:
+      - icon-net
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]  # Remove if no GPU
+
+  # Nginx Reverse Proxy (Optional)
+  nginx:
+    image: nginx:alpine
+    container_name: icon-detection-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./frontend:/usr/share/nginx/html:ro
+    depends_on:
+      - icon-detection
+    restart: unless-stopped
+    networks:
+      - icon-net
+
+  # Redis Cache (Optional - for caching predictions)
+  redis:
+    image: redis:alpine
+    container_name: icon-detection-redis
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+    networks:
+      - icon-net
+    volumes:
+      - redis-data:/data
+
+networks:
+  icon-net:
+    driver: bridge
+
+volumes:
+  redis-data:

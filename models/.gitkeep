@@ -1,0 +1,3 @@
+# This file ensures the models/ directory is tracked by git.
+# Download model weights from Hugging Face or train your own.
+# See README.md for instructions.

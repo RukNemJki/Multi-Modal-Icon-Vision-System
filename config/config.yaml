@@ -1,0 +1,86 @@
+# Multi-Modal Icon Vision System Configuration
+
+# Model Settings
+model:
+  name: yolo11n
+  input_size: 640
+  confidence_threshold: 0.25
+  iou_threshold: 0.45
+  max_detections: 100
+
+# Dataset Settings
+dataset:
+  name: rico_icons
+  num_classes: 26
+  class_names:
+    - back_button
+    - search_icon
+    - menu_icon
+    - home_icon
+    - settings_icon
+    - share_icon
+    - delete_icon
+    - edit_icon
+    - add_icon
+    - close_icon
+    - favorite_icon
+    - profile_icon
+    - notification_icon
+    - camera_icon
+    - gallery_icon
+    - download_icon
+    - upload_icon
+    - play_icon
+    - pause_icon
+    - refresh_icon
+    - filter_icon
+    - sort_icon
+    - calendar_icon
+    - location_icon
+    - phone_icon
+    - email_icon
+  
+  splits:
+    train: 0.7
+    val: 0.2
+    test: 0.1
+  
+  paths:
+    raw: data/raw
+    processed: data/processed
+    train: data/processed/train
+    val: data/processed/val
+    test: data/processed/test
+
+# Training Settings
+training:
+  epochs: 100
+  batch_size: 16
+  learning_rate: 0.01
+  weight_decay: 0.0005
+  momentum: 0.937
+  optimizer: SGD
+  
+  augmentation:
+    hsv_h: 0.015
+    hsv_s: 0.7
+    hsv_v: 0.4
+    translate: 0.1
+    scale: 0.5
+    fliplr: 0.5
+    mosaic: 1.0
+
+# Multi-Modal Settings
+multimodal:
+  enabled: true
+  ocr_engine: easyocr
+  ocr_languages: [en]
+  proximity_threshold: 100
+
+# API Settings
+api:
+  host: 0.0.0.0
+  port: 5000
+  debug: false
+  max_upload_mb: 10
+  allowed_extensions: [png, jpg, jpeg]
