@@ -1,15 +1,25 @@
 """
 Icon Detector Module
-YOLOv11-based icon detection for mobile UI screenshots
+YOLOv11-based icon detection for mobile UI screenshots with supervision integration
 """
 
 import numpy as np
+import cv2
 import torch
 from pathlib import Path
 from typing import List, Dict, Tuple, Optional, Any
 from dataclasses import dataclass
 from ultralytics import YOLO
 import logging
+
+# Try to import supervision for enhanced visualization and tracking
+try:
+    import supervision as sv
+    SUPERVISION_AVAILABLE = True
+except ImportError:
+    SUPERVISION_AVAILABLE = False
+    logger = logging.getLogger(__name__)
+    logger.warning("Supervision library not available. Install it for enhanced visualization.")
 
 logger = logging.getLogger(__name__)
 
@@ -169,3 +179,109 @@ class IconDetector:
     def __call__(self, image: np.ndarray, **kwargs) -> List[Detection]:
         """Shorthand for detect()"""
         return self.detect(image, **kwargs)
+    
+    def visualize(
+        self,
+        image: np.ndarray,
+        detections: List[Detection],
+        label_format: str = "{class_name} {confidence:.2f}"
+    ) -> np.ndarray:
+        """
+        Visualize detections on image with enhanced annotations.
+        
+        Uses supervision library if available for better visualization,
+        falls back to basic OpenCV otherwise.
+        
+        Args:
+            image: Input image
+            detections: List of detections to visualize
+            label_format: Format string for labels
+            
+        Returns:
+            Annotated image
+        """
+        if not detections:
+            return image
+        
+        annotated = image.copy()
+        
+        # Use supervision for enhanced visualization if available
+        if SUPERVISION_AVAILABLE:
+            try:
+                # Convert Detection objects to supervision format
+                boxes = np.array([d.bbox for d in detections])
+                confidences = np.array([d.confidence for d in detections])
+                class_ids = np.array([d.class_id for d in detections])
+                
+                sv_detections = sv.Detections(
+                    xyxy=boxes,
+                    confidence=confidences,
+                    class_id=class_ids
+                )
+                
+                # Annotate with bounding boxes
+                box_annotator = sv.BoxAnnotator()
+                label_annotator = sv.LabelAnnotator()
+                
+                annotated = box_annotator.annotate(
+                    scene=annotated.copy(),
+                    detections=sv_detections
+                )
+                
+                labels = [
+                    label_format.format(
+                        class_name=detections[i].class_name,
+                        confidence=detections[i].confidence
+                    )
+                    for i in range(len(detections))
+                ]
+                
+                annotated = label_annotator.annotate(
+                    scene=annotated,
+                    detections=sv_detections,
+                    labels=labels
+                )
+                
+                return annotated
+            except Exception as e:
+                logger.warning(f"Supervision visualization failed: {e}, using fallback")
+        
+        # Fallback to basic OpenCV visualization
+        for det in detections:
+            x1, y1, x2, y2 = [int(c) for c in det.bbox]
+            
+            # Draw bounding box
+            color = (0, 255, 0)  # Green
+            thickness = 2
+            cv2.rectangle(annotated, (x1, y1), (x2, y2), color, thickness)
+            
+            # Draw label
+            label = label_format.format(
+                class_name=det.class_name,
+                confidence=det.confidence
+            )
+            font = cv2.FONT_HERSHEY_SIMPLEX
+            font_scale = 0.5
+            font_thickness = 1
+            
+            text_size = cv2.getTextSize(label, font, font_scale, font_thickness)[0]
+            label_y = max(y1 - 5, text_size[1])
+            
+            cv2.rectangle(
+                annotated,
+                (x1, label_y - text_size[1] - 4),
+                (x1 + text_size[0], label_y),
+                color,
+                -1
+            )
+            cv2.putText(
+                annotated,
+                label,
+                (x1, label_y - 3),
+                font,
+                font_scale,
+                (0, 0, 0),
+                font_thickness
+            )
+        
+        return annotated

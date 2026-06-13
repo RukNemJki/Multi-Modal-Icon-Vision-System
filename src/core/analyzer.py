@@ -1,6 +1,6 @@
 """
 Multi-Modal Analyzer Module
-Combines visual detection with OCR for semantic UI understanding
+Combines YOLOv11 detection with OCR and OmniParser for advanced semantic UI understanding
 """
 
 import numpy as np
@@ -14,6 +14,14 @@ from .detector import IconDetector, Detection
 from .ocr import OCREngine, TextRegion
 
 logger = logging.getLogger(__name__)
+
+# Try to import OmniParser for advanced multi-modal parsing
+try:
+    from omniglyph import OmniParser
+    OMNIPARSER_AVAILABLE = True
+except ImportError:
+    OMNIPARSER_AVAILABLE = False
+    logger.warning("OmniParser not available. Install omniglyph for advanced UI parsing.")
 
 
 @dataclass
@@ -82,19 +90,30 @@ class MultiModalAnalyzer:
         self,
         model_path: str = "models/best_icon_detector.pt",
         proximity_threshold: int = 100,
-        ocr_languages: List[str] = None
+        ocr_languages: List[str] = None,
+        enable_omniparser: bool = True
     ):
         """
-        Initialize multi-modal analyzer.
+        Initialize multi-modal analyzer with OmniParser support.
         
         Args:
             model_path: Path to YOLO model
             proximity_threshold: Max pixel distance for icon-text correlation
             ocr_languages: Languages for OCR
+            enable_omniparser: Enable OmniParser for advanced UI understanding
         """
         self.detector = IconDetector(model_path)
         self.ocr = OCREngine(languages=ocr_languages)
         self.proximity_threshold = proximity_threshold
+        
+        # Initialize OmniParser if available
+        self.omniparser = None
+        if enable_omniparser and OMNIPARSER_AVAILABLE:
+            try:
+                self.omniparser = OmniParser()
+                logger.info("OmniParser initialized for advanced multi-modal parsing")
+            except Exception as e:
+                logger.warning(f"Failed to initialize OmniParser: {e}")
     
     def _distance(
         self,
@@ -190,15 +209,17 @@ class MultiModalAnalyzer:
         self,
         image: np.ndarray,
         enable_ocr: bool = True,
+        enable_advanced_parsing: bool = True,
         conf: float = 0.25,
         iou: float = 0.45
     ) -> Dict[str, Any]:
         """
-        Run complete multi-modal analysis.
+        Run complete multi-modal analysis with optional OmniParser integration.
         
         Args:
             image: Input BGR image
             enable_ocr: Whether to run OCR
+            enable_advanced_parsing: Use OmniParser for advanced UI understanding
             conf: Detection confidence threshold
             iou: NMS IOU threshold
             
@@ -207,30 +228,71 @@ class MultiModalAnalyzer:
         """
         h, w = image.shape[:2]
         
-        # Icon detection
+        # Icon detection (YOLOv11)
         icons = self.detector.detect(image, conf=conf, iou=iou)
         logger.info(f"Detected {len(icons)} icons")
         
         # OCR and correlation
         texts = []
         pairs = []
+        advanced_elements = []
         
         if enable_ocr:
             texts = self.ocr.extract(image)
             logger.info(f"Extracted {len(texts)} text regions")
             pairs = self.correlate(icons, texts)
         
+        # Advanced parsing with OmniParser
+        if enable_advanced_parsing and self.omniparser:
+            try:
+                advanced_elements = self._parse_advanced(image)
+                logger.info(f"Parsed {len(advanced_elements)} advanced UI elements")
+            except Exception as e:
+                logger.warning(f"Advanced parsing failed: {e}")
+        
         return {
             "image": {"width": w, "height": h},
             "icons": [i.to_dict() for i in icons],
             "texts": [t.to_dict() for t in texts],
             "pairs": [p.to_dict() for p in pairs],
+            "advanced_elements": advanced_elements,
             "stats": {
                 "num_icons": len(icons),
                 "num_texts": len(texts),
-                "ocr_enabled": enable_ocr
+                "num_advanced_elements": len(advanced_elements),
+                "ocr_enabled": enable_ocr,
+                "advanced_parsing_enabled": enable_advanced_parsing and bool(self.omniparser)
             }
         }
+    
+    def _parse_advanced(self, image: np.ndarray) -> List[Dict[str, Any]]:
+        """
+        Use OmniParser for advanced multi-modal UI understanding.
+        
+        Extracts interactive elements, widgets, and semantic relationships
+        beyond basic icon/text detection.
+        """
+        if not self.omniparser:
+            return []
+        
+        try:
+            # OmniParser analyzes UI structure, buttons, forms, etc.
+            elements = self.omniparser.parse(image)
+            
+            parsed = []
+            for elem in elements:
+                parsed.append({
+                    "type": getattr(elem, "type", "unknown"),
+                    "bbox": getattr(elem, "bbox", []),
+                    "confidence": getattr(elem, "confidence", 0.0),
+                    "label": getattr(elem, "label", ""),
+                    "interactive": getattr(elem, "interactive", False)
+                })
+            
+            return parsed
+        except Exception as e:
+            logger.error(f"OmniParser error: {e}")
+            return []
     
     def analyze_file(self, image_path: str, **kwargs) -> Dict[str, Any]:
         """Analyze image from file path"""

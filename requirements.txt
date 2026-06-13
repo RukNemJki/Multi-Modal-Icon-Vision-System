@@ -1,12 +1,17 @@
 # Multi-Modal Icon Vision System - Dependencies
-# As specified in report: PyTorch 2.9.0, Ultralytics YOLO 8.3.226, Flask 3.1.0
+# Enhanced with OmniParser for advanced multi-modal understanding
+# PyTorch 2.9.0, Ultralytics YOLO 8.3+, OmniParser, Flask 3.1.0
 
 # Core Deep Learning
 torch>=2.5.0
 torchvision>=0.20.0
 
-# YOLOv11 (via Ultralytics)
+# YOLOv11 (via Ultralytics) - Enhanced with supervision
 ultralytics>=8.3.0
+supervision>=0.20.0
+
+# Multi-Modal Parsing - OmniParser for advanced UI element understanding
+omniglyph>=0.1.0
 
 # Computer Vision
 opencv-python>=4.10.0
@@ -29,6 +34,7 @@ pyyaml>=6.0.2
 # Visualization
 matplotlib>=3.9.0
 seaborn>=0.13.0
+scikit-image>=0.23.0
 
 # Evaluation Metrics
 scikit-learn>=1.5.0
