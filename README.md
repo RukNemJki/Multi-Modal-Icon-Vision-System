@@ -8,7 +8,7 @@ Deep Learning for Mobile UI Understanding using YOLOv11 and OCR Integration.
 |--------|-------|
 | mAP50 | 43.5% |
 | mAP50-95 | 28.4% |
-| Inference | 0.9ms (1111 FPS) |
+| Inference | 3.0ms (333 FPS on RTX 4090) |
 | Classes | 26 |
 
 ## Installation
